@@ -1,0 +1,209 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+//Structure
+typedef struct student{
+    char full_name[30];
+    int Student_ID;
+    float cgpa;
+    int contact_number;
+}student;
+
+// Function Prototype
+void addStudentDetails();
+void updateStudent();
+void findStudent();
+void countStudent();
+void printDB();
+
+int main(){
+    int num;
+    do{
+        system("cls");
+
+        printf("\n\n\n");
+        printf("\t================================= Welcome to Student Management System =================================\n\n");
+        printf("\n\t\t\t\t\t\t[1]=> ADD STUDENT\n\n");
+        printf("\t\t\t\t\t\t[2]=> UPDATE STUDENT\n\n");
+        printf("\t\t\t\t\t\t[3]=> FIND STUDENT\n\n");
+        printf("\t\t\t\t\t\t[4]=> TOTAL STUDENT\n\n");
+        printf("\t\t\t\t\t\t[5]=> PRINT DATABASE\n\n");
+        printf("\t\t\t\t\t\t[6]=> Exit\n\n\n");
+        printf("\t================================= ************************************* =================================\n\n");
+        printf("\t\t\t\t\t\t Enter Your Choice: ");
+        scanf("%d",&num);
+
+        switch(num){
+        case 1:
+            addStudentDetails();
+            break;
+        case 2:
+            updateStudent();
+            break;
+        case 3:
+            findStudent();
+            break;
+        case 4:
+            countStudent();
+            break;
+        case 5:
+            printDB();
+            break;
+        }
+
+        getch();
+    }while(num!=6);
+
+    return 0;
+}
+
+//Function Definition
+void addStudentDetails(){
+    system("cls");
+    student *s;
+    int n, i;
+
+    printf("Enter Student Amount: ");
+    scanf("%d",&n);
+
+    FILE *fp;
+
+    s = (student*)calloc(n,sizeof(student));
+    if(!fp){
+        fp = fopen("StudentDB.txt","w");
+    }
+    else{
+        fp = fopen("StudentDB.txt","a");
+    }
+
+    for(i=0; i<n; i++){
+        printf("Enter Student Id: ");
+        scanf("%d",&s[i].Student_ID);
+        fflush(stdin);
+        printf("Enter Full Name: ");
+        gets(s[i].full_name);
+        printf("Enter CGPA: ");
+        scanf("%f",&s[i].cgpa);
+        printf("Enter Contact Number: ");
+        scanf("%d",&s[i].contact_number);
+        fwrite(&s[i],sizeof(student),1,fp);
+    }
+    fclose(fp);
+}
+
+void updateStudent(){
+    system("cls");
+     student s1;
+     int rno, found=0, num;
+     FILE *fp, *fp1;
+
+     fp = fopen("StudentDB.txt","r");
+     fp1 = fopen("temp.txt","w");
+
+     printf("Enter Student Id: ");
+     scanf("%d",&rno);
+
+     while(fread(&s1,sizeof(student),1,fp)){
+        if(rno == s1.Student_ID){
+            found =1;
+
+            printf("\n\n\n");
+            printf("\t\t\t============================== Update Menu ==============================\n\n");
+            printf("\n\t\t\t\t\t\t[1]=> UPDATE NAME\n\n");
+            printf("\t\t\t\t\t\t[2]=> UPDATE CGPA\n\n");
+            printf("\t\t\t\t\t\t[3]=> UPDATE CONTACT NUMBER\n\n\n");
+            printf("\t\t\t============================== *********** ===============================\n\n");
+            printf("\t\t\t\t\t\t Enter Your Choice: ");
+            scanf("%d",&num);
+
+            fflush(stdin);
+            switch(num){
+                case 1:
+                    printf("Enter Full Name: ");
+                    gets(s1.full_name);
+                    break;
+                case 2:
+                    printf("Enter CGPA: ");
+                    scanf("%f",&s1.cgpa);
+                    break;
+                case 3:
+                    printf("Enter Contact Number: ");
+                    scanf("%d",&s1.contact_number);
+                    break;
+            }
+        }
+        fwrite(&s1,sizeof(student),1,fp1);
+    }
+    fclose(fp);
+    fclose(fp1);
+    if(found){
+        fp1 = fopen("temp.txt","r");
+        fp = fopen("StudentDB.txt","w");
+
+        while(fread(&s1,sizeof(student),1,fp1)){
+            fwrite(&s1,sizeof(student),1,fp);
+        }
+
+        fclose(fp);
+        fclose(fp1);
+    }
+    else{
+        printf("\nDetails Not Found");
+    }
+}
+
+void findStudent(){
+    system("cls");
+     student s1;
+     int rno, found=0;
+     FILE *fp;
+
+     fp = fopen("StudentDB.txt","r");
+
+     printf("Enter Student Id: ");
+     scanf("%d",&rno);
+     printf("\nID             NAME                           CGPA    CONTACT NO  ");
+     printf("\n_____________________________________________________________________");
+     while(fread(&s1,sizeof(student),1,fp)){
+
+        if(rno == s1.Student_ID){
+            found =1;
+            printf("\n%-15d%-30s%-7.2f 0%-11d\n",s1.Student_ID,s1.full_name,s1.cgpa,s1.contact_number);
+        }
+    }
+    if(!found){
+        printf("\nDetails Not Found");
+    }
+     fclose(fp);
+}
+
+void countStudent(){
+    system("cls");
+     student s1;
+     FILE *fp;
+     int count =0;
+
+     fp = fopen("StudentDB.txt","r");
+     while(fread(&s1,sizeof(student),1,fp)){
+        count+=1;
+     }
+     fclose(fp);
+     printf("\nTotal Student: %d",count);
+}
+
+void printDB(){
+    system("cls");
+     student s1;
+     FILE *fp;
+
+     printf("\nID             NAME                          CGPA    CONTACT NO  ");
+     printf("\n____________________________________________________________________");
+
+     fp = fopen("StudentDB.txt","r");
+     while(fread(&s1,sizeof(student),1,fp)){
+        printf("\n%-15d%-30s%-7.2f 0%-11d\n",s1.Student_ID,s1.full_name,s1.cgpa,s1.contact_number);
+     }
+
+     fclose(fp);
+}
